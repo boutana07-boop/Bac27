@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bac 27</title>
+<style>
+  :root { --main:#0f7a5a; --bg:#f4f7f5; --txt:#1c2330; --card:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; font-family:system-ui,sans-serif; }
+  body { background:var(--bg); color:var(--txt); }
+  header { background:var(--main); color:#fff; padding:16px; text-align:center; }
+  header h1 { font-size:1.4rem; }
+  header p { font-size:.8rem; opacity:.9; margin-top:4px; }
+  nav { display:flex; position:sticky; top:0; background:#fff; box-shadow:0 2px 6px #0001; z-index:2; }
+  nav button { flex:1; padding:14px 4px; border:none; background:none; font-size:.9rem; font-weight:600; color:#667; border-bottom:3px solid transparent; }
+  nav button.active { color:var(--main); border-color:var(--main); }
+  .filters { display:flex; gap:8px; padding:12px; }
+  .filters input, .filters select { flex:1; padding:10px; border:1px solid #ccd; border-radius:8px; font-size:.9rem; min-width:0; }
+  #list { padding:0 12px 24px; }
+  .group { margin-bottom:18px; }
+  .group h2 { font-size:1rem; color:var(--main); padding:8px 4px; border-bottom:2px solid var(--main); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .group h2 span.count { font-size:.75rem; background:var(--main); color:#fff; padding:2px 8px; border-radius:20px; }
+  .group .items { display:grid; gap:10px; }
+  .card { background:var(--card); border-radius:12px; padding:14px; box-shadow:0 1px 4px #0001; }
+  .card h3 { font-size:1rem; margin-bottom:6px; }
+  .tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .tag { font-size:.72rem; background:#e0f3ec; color:var(--main); padding:3px 8px; border-radius:20px; }
+  .tag.premium { background:#fff2d6; color:#a56a00; }
+  .btn { display:inline-block; padding:9px 16px; border-radius:8px; background:var(--main); color:#fff; text-decoration:none; font-size:.88rem; }
+  .btn.lock { background:#e6a100; }
+  button.btn { border:none; cursor:pointer; }
+  .btn.gray { background:#889; }
+  .card.sponsor { background:#fffbe9; border:1px dashed #e6a100; margin-bottom:18px; }
+  .card.sponsor small { color:#a56a00; font-size:.7rem; text-transform:uppercase; }
+  .card.sponsor p { font-size:.88rem; margin:6px 0 10px; }
+  .adbox { margin:0 12px 12px; text-align:center; min-height:60px; }
+  .modal { position:fixed; inset:0; background:#000a; display:none; align-items:center; justify-content:center; padding:16px; z-index:10; }
+  .modal.open { display:flex; }
+  .modal .box { background:#fff; border-radius:14px; padding:20px; max-width:420px; width:100%; }
+  .modal h3 { margin-bottom:8px; }
+  .modal p { font-size:.92rem; line-height:1.5; margin:8px 0; }
+  .modal .pay { background:#f4f7f5; border-radius:8px; padding:10px; margin:6px 0; font-size:.92rem; }
+  .modal .row { display:flex; gap:8px; margin-top:14px; }
+  .modal .row .btn { flex:1; text-align:center; }
+  .empty { text-align:center; padding:40px 12px; color:#889; }
+  footer { text-align:center; padding:16px; font-size:.8rem; color:#889; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📊 Bac 27</h1>
+  <p>Terminale Sciences Économiques : cours, exercices et corrigés</p>
+</header>
+
+<nav id="tabs">
+  <button data-type="cours" class="active">Cours</button>
+  <button data-type="exercice">Exercices</button>
+  <button data-type="corrige">Corrigés</button>
+</nav>
+
+<div class="filters">
+  <input id="search" type="search" placeholder="Rechercher...">
+  <select id="group"><option value="">Tous les groupes</option></select>
+</div>
+
+<!-- Colle ici ton code Google AdSense une fois ton compte approuvé -->
+<div class="adbox" id="adTop"></div>
+
+<main id="list"></main>
+
+<div class="adbox" id="adBottom"></div>
+<footer>© 2026 Bac 27</footer>
+
+<div class="modal" id="payModal"><div class="box" id="payBox"></div></div>
+
+<script>
+// ====== CONFIGURATION ======
+const WHATSAPP = "22383223409"; // ton numéro (sans le +)
+const PRIX = 550; // prix d'un corrigé en F CFA
+const PAIEMENT = [
+  { nom:"Orange Money", numero:"+223 83 22 34 09" },
+  { nom:"Moov Money",   numero:"+223 83 22 34 09" },
+];
+
+// Les groupes affichés dans chaque colonne (dans cet ordre)
+const GROUPS = ["Math général", "Math financier", "Comptabilité", "Économie"];
+const ICONS  = { "Math général":"📐", "Math financier":"💰", "Comptabilité":"🧾", "Économie":"📈" };
+
+// ====== PUBLICITÉS / PARTENAIRES ======
+const SPONSORS = [
+  { title:"Ta publicité ici", text:"Fais connaître ton produit ou ton école aux élèves de Terminale.", link:`https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Bonjour, je veux faire de la publicité sur Bac 27")}`, cta:"Contacter" },
+  { title:"Cours de soutien à domicile", text:"Un professeur près de chez vous. Premier cours offert.", link:"https://exemple.com", cta:"En savoir plus" },
+  { title:"Forfait internet étudiant", text:"Une offre spéciale pour télécharger tes cours.", link:"https://exemple.com", cta:"Voir l'offre" },
+];
+
+// ====== TES DOCUMENTS ======
+const DOCUMENTS = [
+  // ===== COURS =====
+  { type:"cours", group:"Math général", theme:"Brochure", title:"Brochure de Maths générales", file:"Doc/Math général/Broch MAths G.pdf", premium:false },
+  { type:"cours", group:"Math général", theme:"Cours", title:"Maths TSECO (1)", file:"Doc/Math général/Math TSeco.pdf", premium:false },
+  { type:"cours", group:"Math général", theme:"Cours", title:"Maths TSECO (2)", file:"Doc/Math général/Maths TS éco.pdf", premium:false },
+  { type:"cours", group:"Math général", theme:"Cours", title:"Maths TSECO (3)", file:"Doc/Math général/Maths TSECO.pdf", premium:false },
+
+  { type:"cours", group:"Math financier", theme:"Cours", title:"Math financière (1)", file:"Math financier/Math financière.pdf", premium:false },
+  { type:"cours", group:"Math financier", theme:"Cours", title:"Maths financières (2)", file:"Math financier/Maths Financières.pdf", premium:false },
+
+  { type:"cours", group:"Comptabilité", theme:"Cours", title:"Comptabilité TSECO (1)", file:"Doc/Comptabilité/Compta TSECO-1.pdf", premium:false },
+  { type:"cours", group:"Comptabilité", theme:"Cours", title:"Comptabilité TS (2)", file:"Doc/Comptabilité/Comptabilité TS.pdf", premium:false },
+  { type:"cours", group:"Comptabilité", theme:"Cours", title:"Comptabilité (3)", file:"Doc/Comptabilité/Comptabilité-1 (1).pdf", premium:false },
+
+  { type:"cours", group:"Économie", theme:"Cours complet", title:"TSECO entièrement", file:"Doc/Économie/TSECO entièrement.pdf", premium:false },
+
+  // ===== EXERCICES =====
+  { type:"exercice", group:"Math général", theme:"Sujets", title:"Sujet 1 Maths", file:"Doc/Exercices math général/SUJET 1 MATH.pdf", premium:false },
+  { type:"exercice", group:"Math général", theme:"Exercices", title:"TSECO numérique", file:"Doc/Exercices math général/T SECO numer.pdf", premium:false },
+  { type:"exercice", group:"Math général", theme:"Sujets", title:"TSECO Maths 2025", file:"Doc/Exercices math général/TSEco Maths 2025.pdf", premium:false },
+
+  { type:"exercice", group:"Math financier", theme:"Intérêts", title:"Intérêt simple (exercices)", file:"Doc/Exercices math financier/Intérêt Simple EXO.pdf", premium:false },
+  { type:"exercice", group:"Math financier", theme:"Niveau 2", title:"Math financière niveau 2", file:"Doc/Exercices math financier/MATH FIN NIV 2.pdf", premium:false },
+
+  { type:"exercice", group:"Comptabilité", theme:"Sujets du bac", title:"Comptabilité BAC", file:"Doc/Exercices de comptabilité/Comptabilite BAC.pdf", premium:false },
+  { type:"exercice", group:"Comptabilité", theme:"Valorisation", title:"Valorisation des stocks", file:"Doc/Exercices de comptabilité/Valorisation+Corrig.pdf", premium:false },
+
+  { type:"exercice", group:"Économie", theme:"Documents", title:"Analyse de documents", file:"Doc/Exercices d'économie/Analyse-Doc.pdf", premium:false },
+  { type:"exercice", group:"Économie", theme:"Annales", title:"Annales TSECO", file:"Doc/Exercices d'économie/Annales TSECO-1.pdf", premium:false },
+  { type:"exercice", group:"Économie", theme:"Sujets du bac", title:"Économie BAC", file:"Doc/Exercices d'économie/Economie BAC.pdf", premium:false },
+  { type:"exercice", group:"Économie", theme:"Sujets", title:"Sujets complets", file:"Doc/Exercices d'économie/Sujets Complets.pdf", premium:false },
+
+  // ===== CORRIGÉS (payants) =====
+  { type:"corrige", group:"Math général", theme:"Bac", title:"BAC Maths TSECO (corrigé)", file:"Doc/Corrigé de math général/BAC-Maths-TSECO.pdf", premium:true },
+  { type:"corrige", group:"Math général", theme:"Fonctions", title:"Fonctions corrigées", file:"Doc/Corrigé de math général/FONCTIONS_CORRIGÉS.pdf", premium:true },
+  { type:"corrige", group:"Math général", theme:"Maths générales", title:"Maths générales (corrigé)", file:"Doc/Corrigé de math général/MATHS Gl.pdf", premium:true },
+  { type:"corrige", group:"Math général", theme:"Suites numériques", title:"Suites numériques TSECO", file:"Doc/Corrigé de math général/T SECO suite numq(1).pdf", premium:true },
+
+  { type:"corrige", group:"Math financier", theme:"Niveau 2", title:"Math financière niveau 2", file:"Doc/Corrigé math financier/MATH FIN 2.pdf", premium:true },
+  { type:"corrige", group:"Math financier", theme:"Corrigés", title:"Maths financières (1)", file:"Doc/Corrigé math financier/Maths Financières (1).pdf", premium:true },
+  { type:"corrige", group:"Math financier", theme:"Corrigés", title:"Maths financières (2)", file:"Doc/Corrigé math financier/Maths financières.pdf", premium:true },
+  { type:"corrige", group:"Math financier", theme:"Corrigés", title:"Mathématique financière", file:"Doc/Corrigé math financier/Mathématique fin.pdf", premium:true },
+
+  { type:"corrige", group:"Comptabilité", theme:"Vocabulaire", title:"100 termes comptables", file:"Doc/Corrigé de comptabilité/100_termes.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Annales", title:"Annale Compta TSECO", file:"Doc/Corrigé de comptabilité/Annale Compta TSECO.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Bac", title:"BAC Comptabilité", file:"Doc/Corrigé de comptabilité/BAC COMPTA.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Comptabilité", title:"Compta TSECO", file:"Doc/Corrigé de comptabilité/Compta TSECO.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Facture", title:"Facture + corrigé", file:"Doc/Corrigé de comptabilité/FACTURE + CORRIGE.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Acquisition", title:"L'acquisition", file:"Doc/Corrigé de comptabilité/l'acquisition.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"OIM", title:"OIM Compta TSECO", file:"Doc/Corrigé de comptabilité/OIM Compta TSECO.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"SYCEBNL", title:"SYCEBNL", file:"Doc/Corrigé de comptabilité/SYCEBNL.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Effets", title:"TSECO Effets de commerce", file:"Doc/Corrigé de comptabilité/TSECO Effets.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Valorisation", title:"Valorisation + corrigé", file:"Doc/Corrigé de comptabilité/Valorisation+Corrigé-2.pdf", premium:true },
+
+  { type:"corrige", group:"Économie", theme:"Bac", title:"Économie BAC TS éco", file:"Doc/Corrigé économiques/Economie BACTS éco.pdf", premium:true },
+  { type:"corrige", group:"Économie", theme:"Méthode", title:"Phrase choc", file:"Doc/Corrigé économiques/Phrase choc-1-3.pdf", premium:true },
+  { type:"corrige", group:"Économie", theme:"Corrigés", title:"Économie + corrigés", file:"Doc/Corrigé économiques/ÉCONOMIE+CORRIGES.pdf", premium:true },
+];
+
+// ====== LOGIQUE ======
+let currentType = "cours";
+const $ = id => document.getElementById(id);
+
+GROUPS.forEach(g => $("group").insertAdjacentHTML("beforeend", `<option>${g}</option>`));
+
+function sponsorCard(n) {
+  const s = SPONSORS[n % SPONSORS.length];
+  return `<div class="card sponsor"><small>Publicité</small>
+    <h3>${s.title}</h3><p>${s.text}</p>
+    <a class="btn lock" target="_blank" rel="sponsored noopener" href="${s.link}">${s.cta}</a></div>`;
+}
+
+function docCard(d) {
+  const action = d.premium
+    ? `<button class="btn lock" onclick="payer(${DOCUMENTS.indexOf(d)})">🔒 Débloquer · ${d.prix || PRIX} F</button>`
+    : `<a class="btn" target="_blank" href="${encodeURI(d.file)}">Ouvrir le PDF</a>`;
+  return `<div class="card">
+    <h3>${d.title}</h3>
+    <div class="tags">
+      <span class="tag">${d.theme}</span>
+      ${d.premium ? '<span class="tag premium">Premium</span>' : ''}
+    </div>${action}</div>`;
+}
+
+function payer(i) {
+  const d = DOCUMENTS[i];
+  const prix = d.prix || PRIX;
+  const moyens = PAIEMENT.map(p => `<div class="pay"><b>${p.nom}</b> : ${p.numero}</div>`).join("");
+  const msg = encodeURIComponent(`Bonjour, j'ai payé ${prix} F pour : ${d.title} (${d.group}) sur Bac 27. Voici la preuve de paiement.`);
+  $("payBox").innerHTML = `
+    <h3>🔒 ${d.title}</h3>
+    <p>Prix : <b>${prix} F CFA</b></p>
+    <p><b>1.</b> Envoie ${prix} F à l'un de ces numéros :</p>
+    ${moyens}
+    <p><b>2.</b> Appuie sur « J'ai payé » et envoie la capture du paiement sur WhatsApp.</p>
+    <p><b>3.</b> Tu reçois ton corrigé en quelques minutes.</p>
+    <div class="row">
+      <a class="btn" target="_blank" href="https://wa.me/${WHATSAPP}?text=${msg}">J'ai payé</a>
+      <button class="btn gray" onclick="fermer()">Fermer</button>
+    </div>`;
+  $("payModal").classList.add("open");
+}
+function fermer() { $("payModal").classList.remove("open"); }
+$("payModal").onclick = e => { if (e.target.id === "payModal") fermer(); };
+
+function render() {
+  const q = $("search").value.toLowerCase();
+  const groupFilter = $("group").value;
+  let html = "", shown = 0;
+
+  GROUPS.forEach(g => {
+    if (groupFilter && g !== groupFilter) return;
+    const items = DOCUMENTS.filter(d =>
+      d.type === currentType && d.group === g &&
+      (d.title + " " + d.theme).toLowerCase().includes(q)
+    );
+    if (!items.length) return;
+    html += `<section class="group">
+      <h2>${ICONS[g]} ${g} <span class="count">${items.length}</span></h2>
+      <div class="items">${items.map(docCard).join("")}</div>
+    </section>`;
+    shown++;
+    if (shown % 2 === 0) html += sponsorCard(shown / 2 - 1);
+  });
+
+  $("list").innerHTML = html || `<div class="empty">Aucun document trouvé.</div>`;
+}
+
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => {
+  document.querySelector("#tabs .active").classList.remove("active");
+  b.classList.add("active");
+  currentType = b.dataset.type;
+  render();
+});
+$("search").oninput = render;
+$("group").oninput = render;
+
+render();
+</script>
+</body>
+</html>
