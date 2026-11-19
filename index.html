@@ -38,9 +38,9 @@
   .card.sponsor small { color:#a56a00; font-size:.7rem; text-transform:uppercase; }
   .card.sponsor p { font-size:.88rem; margin:6px 0 10px; }
   .adbox { margin:0 12px 12px; text-align:center; min-height:60px; }
-  .modal { position:fixed; inset:0; background:#000a; display:none; align-items:center; justify-content:center; padding:16px; z-index:10; }
+  .modal { position:fixed; inset:0; background:#000a; display:none; align-items:center; justify-content:center; padding:16px; z-index:10; overflow-y:auto; }
   .modal.open { display:flex; }
-  .modal .box { background:#fff; border-radius:14px; padding:20px; max-width:420px; width:100%; }
+  .modal .box { background:#fff; border-radius:14px; padding:20px; max-width:420px; width:100%; max-height:100%; overflow-y:auto; }
   .modal h3 { margin-bottom:8px; }
   .modal p { font-size:.92rem; line-height:1.5; margin:8px 0; }
   .modal .pay { background:#f4f7f5; border-radius:8px; padding:10px; margin:6px 0; font-size:.92rem; }
@@ -181,24 +181,41 @@ function docCard(d) {
     </div>${action}</div>`;
 }
 
+// ====== PAIEMENT AVEC SUIVI DE COMMANDE ======
 function payer(i) {
   const d = DOCUMENTS[i];
   const prix = d.prix || PRIX;
+  const code = "BAC27-" + Math.random().toString(36).slice(2, 6).toUpperCase();
   const moyens = PAIEMENT.map(p => `<div class="pay"><b>${p.nom}</b> : ${p.numero}</div>`).join("");
-  const msg = encodeURIComponent(`Bonjour, j'ai payé ${prix} F pour : ${d.title} (${d.group}) sur Bac 27. Voici la preuve de paiement.`);
+  const st = "width:100%;padding:10px;margin:4px 0;border:1px solid #ccd;border-radius:8px;font-size:1rem";
   $("payBox").innerHTML = `
     <h3>🔒 ${d.title}</h3>
-    <p>Prix : <b>${prix} F CFA</b></p>
+    <p>Prix : <b>${prix} F CFA</b> · Commande : <b>${code}</b></p>
     <p><b>1.</b> Envoie ${prix} F à l'un de ces numéros :</p>
     ${moyens}
-    <p><b>2.</b> Appuie sur « J'ai payé » et envoie la capture du paiement sur WhatsApp.</p>
-    <p><b>3.</b> Tu reçois ton corrigé en quelques minutes.</p>
+    <p><b>2.</b> Remplis tes informations :</p>
+    <input id="cNom" placeholder="Ton nom" style="${st}">
+    <input id="cTel" type="tel" placeholder="Numéro qui a payé" style="${st}">
+    <input id="cRef" placeholder="Numéro de transaction (dans le SMS)" style="${st}">
+    <p><b>3.</b> Appuie sur « J'ai payé », puis joins la capture du paiement sur WhatsApp.</p>
     <div class="row">
-      <a class="btn" target="_blank" href="https://wa.me/${WHATSAPP}?text=${msg}">J'ai payé</a>
+      <button class="btn" onclick="envoyerCommande(${i}, '${code}')">J'ai payé</button>
       <button class="btn gray" onclick="fermer()">Fermer</button>
     </div>`;
   $("payModal").classList.add("open");
 }
+
+function envoyerCommande(i, code) {
+  const d = DOCUMENTS[i];
+  const prix = d.prix || PRIX;
+  const nom = $("cNom").value.trim();
+  const tel = $("cTel").value.trim();
+  const ref = $("cRef").value.trim();
+  if (!nom || !tel) { alert("Écris ton nom et ton numéro."); return; }
+  const msg = `COMMANDE ${code}\nCorrigé : ${d.title}\nMatière : ${d.group}\nFichier : ${d.file}\nPrix : ${prix} F\nNom : ${nom}\nNuméro : ${tel}\nTransaction : ${ref || "non précisé"}\n(Je joins la capture du paiement)`;
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
 function fermer() { $("payModal").classList.remove("open"); }
 $("payModal").onclick = e => { if (e.target.id === "payModal") fermer(); };
 
