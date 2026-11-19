@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bac 27</title>
+<meta name="theme-color" content="#0f7a5a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root { --main:#0f7a5a; --bg:#f4f7f5; --txt:#1c2330; --card:#fff; }
   * { box-sizing:border-box; margin:0; padding:0; font-family:system-ui,sans-serif; }
@@ -64,7 +68,6 @@
   <select id="group"><option value="">Tous les groupes</option></select>
 </div>
 
-<!-- Colle ici ton code Google AdSense une fois ton compte approuvé -->
 <div class="adbox" id="adTop"></div>
 
 <main id="list"></main>
@@ -76,14 +79,13 @@
 
 <script>
 // ====== CONFIGURATION ======
-const WHATSAPP = "22383223409"; // ton numéro (sans le +)
-const PRIX = 550; // prix d'un corrigé en F CFA
+const WHATSAPP = "22383223409";
+const PRIX = 550;
 const PAIEMENT = [
   { nom:"Orange Money", numero:"+223 83 22 34 09" },
   { nom:"Moov Money",   numero:"+223 83 22 34 09" },
 ];
 
-// Les groupes affichés dans chaque colonne (dans cet ordre)
 const GROUPS = ["Math général", "Math financier", "Comptabilité", "Économie"];
 const ICONS  = { "Math général":"📐", "Math financier":"💰", "Comptabilité":"🧾", "Économie":"📈" };
 
@@ -94,64 +96,64 @@ const SPONSORS = [
   { title:"Forfait internet étudiant", text:"Une offre spéciale pour télécharger tes cours.", link:"https://exemple.com", cta:"Voir l'offre" },
 ];
 
-// ====== TES DOCUMENTS ======
+// ====== TES DOCUMENTS (tous à la racine du dépôt) ======
 const DOCUMENTS = [
   // ===== COURS =====
-  { type:"cours", group:"Math général", theme:"Brochure", title:"Brochure de Maths générales", file:"Doc/Math général/Broch MAths G.pdf", premium:false },
-  { type:"cours", group:"Math général", theme:"Cours", title:"Maths TSECO (1)", file:"Doc/Math général/Math TSeco.pdf", premium:false },
-  { type:"cours", group:"Math général", theme:"Cours", title:"Maths TSECO (2)", file:"Doc/Math général/Maths TS éco.pdf", premium:false },
-  { type:"cours", group:"Math général", theme:"Cours", title:"Maths TSECO (3)", file:"Doc/Math général/Maths TSECO.pdf", premium:false },
+  { type:"cours", group:"Math général", theme:"Brochure", title:"Brochure de Maths générales", file:"Broch MAths G.pdf", premium:false },
+  { type:"cours", group:"Math général", theme:"Cours", title:"Maths TSECO (1)", file:"Math TSeco.pdf", premium:false },
+  { type:"cours", group:"Math général", theme:"Cours", title:"Maths TSECO (2)", file:"Maths TS éco.pdf", premium:false },
+  { type:"cours", group:"Math général", theme:"Cours", title:"Maths TSECO (3)", file:"Maths TSECO.pdf", premium:false },
 
-  { type:"cours", group:"Math financier", theme:"Cours", title:"Math financière (1)", file:"Math financier/Math financière.pdf", premium:false },
-  { type:"cours", group:"Math financier", theme:"Cours", title:"Maths financières (2)", file:"Math financier/Maths Financières.pdf", premium:false },
+  { type:"cours", group:"Math financier", theme:"Cours", title:"Math financière (1)", file:"Math financière.pdf", premium:false },
+  { type:"cours", group:"Math financier", theme:"Cours", title:"Maths financières (2)", file:"Maths Financières.pdf", premium:false },
 
-  { type:"cours", group:"Comptabilité", theme:"Cours", title:"Comptabilité TSECO (1)", file:"Doc/Comptabilité/Compta TSECO-1.pdf", premium:false },
-  { type:"cours", group:"Comptabilité", theme:"Cours", title:"Comptabilité TS (2)", file:"Doc/Comptabilité/Comptabilité TS.pdf", premium:false },
-  { type:"cours", group:"Comptabilité", theme:"Cours", title:"Comptabilité (3)", file:"Doc/Comptabilité/Comptabilité-1 (1).pdf", premium:false },
+  { type:"cours", group:"Comptabilité", theme:"Cours", title:"Comptabilité TSECO (1)", file:"Compta TSECO-1.pdf", premium:false },
+  { type:"cours", group:"Comptabilité", theme:"Cours", title:"Comptabilité TS (2)", file:"Comptabilité TS.pdf", premium:false },
+  { type:"cours", group:"Comptabilité", theme:"Cours", title:"Comptabilité (3)", file:"Comptabilité-1 (1).pdf", premium:false },
 
-  { type:"cours", group:"Économie", theme:"Cours complet", title:"TSECO entièrement", file:"Doc/Économie/TSECO entièrement.pdf", premium:false },
+  { type:"cours", group:"Économie", theme:"Cours complet", title:"TSECO entièrement", file:"TSECO entièrement.pdf", premium:false },
 
   // ===== EXERCICES =====
-  { type:"exercice", group:"Math général", theme:"Sujets", title:"Sujet 1 Maths", file:"Doc/Exercices math général/SUJET 1 MATH.pdf", premium:false },
-  { type:"exercice", group:"Math général", theme:"Exercices", title:"TSECO numérique", file:"Doc/Exercices math général/T SECO numer.pdf", premium:false },
-  { type:"exercice", group:"Math général", theme:"Sujets", title:"TSECO Maths 2025", file:"Doc/Exercices math général/TSEco Maths 2025.pdf", premium:false },
+  { type:"exercice", group:"Math général", theme:"Sujets", title:"Sujet 1 Maths", file:"SUJET 1 MATH.pdf", premium:false },
+  { type:"exercice", group:"Math général", theme:"Exercices", title:"TSECO numérique", file:"Numéro T SECO.pdf", premium:false },
+  { type:"exercice", group:"Math général", theme:"Sujets", title:"TSECO Maths 2025", file:"TSEco Maths 2025.pdf", premium:false },
 
-  { type:"exercice", group:"Math financier", theme:"Intérêts", title:"Intérêt simple (exercices)", file:"Doc/Exercices math financier/Intérêt Simple EXO.pdf", premium:false },
-  { type:"exercice", group:"Math financier", theme:"Niveau 2", title:"Math financière niveau 2", file:"Doc/Exercices math financier/MATH FIN NIV 2.pdf", premium:false },
+  { type:"exercice", group:"Math financier", theme:"Intérêts", title:"Intérêt simple (exercices)", file:"Intérêt Simple EXO.pdf", premium:false },
+  { type:"exercice", group:"Math financier", theme:"Niveau 2", title:"Math financière niveau 2", file:"MATH FIN NIV 2.pdf", premium:false },
 
-  { type:"exercice", group:"Comptabilité", theme:"Sujets du bac", title:"Comptabilité BAC", file:"Doc/Exercices de comptabilité/Comptabilite BAC.pdf", premium:false },
-  { type:"exercice", group:"Comptabilité", theme:"Valorisation", title:"Valorisation des stocks", file:"Doc/Exercices de comptabilité/Valorisation+Corrig.pdf", premium:false },
+  { type:"exercice", group:"Comptabilité", theme:"Sujets du bac", title:"Comptabilité BAC", file:"Comptabilité BAC.pdf", premium:false },
+  { type:"exercice", group:"Comptabilité", theme:"Valorisation", title:"Valorisation des stocks", file:"Valorisation+Corrig.pdf", premium:false },
 
-  { type:"exercice", group:"Économie", theme:"Documents", title:"Analyse de documents", file:"Doc/Exercices d'économie/Analyse-Doc.pdf", premium:false },
-  { type:"exercice", group:"Économie", theme:"Annales", title:"Annales TSECO", file:"Doc/Exercices d'économie/Annales TSECO-1.pdf", premium:false },
-  { type:"exercice", group:"Économie", theme:"Sujets du bac", title:"Économie BAC", file:"Doc/Exercices d'économie/Economie BAC.pdf", premium:false },
-  { type:"exercice", group:"Économie", theme:"Sujets", title:"Sujets complets", file:"Doc/Exercices d'économie/Sujets Complets.pdf", premium:false },
+  { type:"exercice", group:"Économie", theme:"Documents", title:"Analyse de documents", file:"Analyse-Doc.pdf", premium:false },
+  { type:"exercice", group:"Économie", theme:"Annales", title:"Annales TSECO", file:"Annales TSECO-1.pdf", premium:false },
+  { type:"exercice", group:"Économie", theme:"Sujets du bac", title:"Économie BAC", file:"Économie BAC.pdf", premium:false },
+  { type:"exercice", group:"Économie", theme:"Sujets", title:"Sujets complets", file:"Sujets complets.pdf", premium:false },
 
   // ===== CORRIGÉS (payants) =====
-  { type:"corrige", group:"Math général", theme:"Bac", title:"BAC Maths TSECO (corrigé)", file:"Doc/Corrigé de math général/BAC-Maths-TSECO.pdf", premium:true },
-  { type:"corrige", group:"Math général", theme:"Fonctions", title:"Fonctions corrigées", file:"Doc/Corrigé de math général/FONCTIONS_CORRIGÉS.pdf", premium:true },
-  { type:"corrige", group:"Math général", theme:"Maths générales", title:"Maths générales (corrigé)", file:"Doc/Corrigé de math général/MATHS Gl.pdf", premium:true },
-  { type:"corrige", group:"Math général", theme:"Suites numériques", title:"Suites numériques TSECO", file:"Doc/Corrigé de math général/T SECO suite numq(1).pdf", premium:true },
+  { type:"corrige", group:"Math général", theme:"Bac", title:"BAC Maths TSECO (corrigé)", file:"BAC-Maths-TSECO.pdf", premium:true },
+  { type:"corrige", group:"Math général", theme:"Fonctions", title:"Fonctions corrigées", file:"FONCTIONS_CORRIGÉS.pdf", premium:true },
+  { type:"corrige", group:"Math général", theme:"Maths générales", title:"Maths générales (corrigé)", file:"MATHS Gl.pdf", premium:true },
+  { type:"corrige", group:"Math général", theme:"Suites numériques", title:"Suites numériques TSECO", file:"Suite T SECO numq(1).pdf", premium:true },
 
-  { type:"corrige", group:"Math financier", theme:"Niveau 2", title:"Math financière niveau 2", file:"Doc/Corrigé math financier/MATH FIN 2.pdf", premium:true },
-  { type:"corrige", group:"Math financier", theme:"Corrigés", title:"Maths financières (1)", file:"Doc/Corrigé math financier/Maths Financières (1).pdf", premium:true },
-  { type:"corrige", group:"Math financier", theme:"Corrigés", title:"Maths financières (2)", file:"Doc/Corrigé math financier/Maths financières.pdf", premium:true },
-  { type:"corrige", group:"Math financier", theme:"Corrigés", title:"Mathématique financière", file:"Doc/Corrigé math financier/Mathématique fin.pdf", premium:true },
+  { type:"corrige", group:"Math financier", theme:"Niveau 2", title:"Math financière niveau 2", file:"MATH FIN 2.pdf", premium:true },
+  { type:"corrige", group:"Math financier", theme:"Corrigés", title:"Maths financières (1)", file:"Maths Financières (1).pdf", premium:true },
+  { type:"corrige", group:"Math financier", theme:"Corrigés", title:"Maths financières (2)", file:"Mathématiques financières.pdf", premium:true },
+  { type:"corrige", group:"Math financier", theme:"Corrigés", title:"Mathématique financière", file:"Mathématique fin.pdf", premium:true },
 
-  { type:"corrige", group:"Comptabilité", theme:"Vocabulaire", title:"100 termes comptables", file:"Doc/Corrigé de comptabilité/100_termes.pdf", premium:true },
-  { type:"corrige", group:"Comptabilité", theme:"Annales", title:"Annale Compta TSECO", file:"Doc/Corrigé de comptabilité/Annale Compta TSECO.pdf", premium:true },
-  { type:"corrige", group:"Comptabilité", theme:"Bac", title:"BAC Comptabilité", file:"Doc/Corrigé de comptabilité/BAC COMPTA.pdf", premium:true },
-  { type:"corrige", group:"Comptabilité", theme:"Comptabilité", title:"Compta TSECO", file:"Doc/Corrigé de comptabilité/Compta TSECO.pdf", premium:true },
-  { type:"corrige", group:"Comptabilité", theme:"Facture", title:"Facture + corrigé", file:"Doc/Corrigé de comptabilité/FACTURE + CORRIGE.pdf", premium:true },
-  { type:"corrige", group:"Comptabilité", theme:"Acquisition", title:"L'acquisition", file:"Doc/Corrigé de comptabilité/l'acquisition.pdf", premium:true },
-  { type:"corrige", group:"Comptabilité", theme:"OIM", title:"OIM Compta TSECO", file:"Doc/Corrigé de comptabilité/OIM Compta TSECO.pdf", premium:true },
-  { type:"corrige", group:"Comptabilité", theme:"SYCEBNL", title:"SYCEBNL", file:"Doc/Corrigé de comptabilité/SYCEBNL.pdf", premium:true },
-  { type:"corrige", group:"Comptabilité", theme:"Effets", title:"TSECO Effets de commerce", file:"Doc/Corrigé de comptabilité/TSECO Effets.pdf", premium:true },
-  { type:"corrige", group:"Comptabilité", theme:"Valorisation", title:"Valorisation + corrigé", file:"Doc/Corrigé de comptabilité/Valorisation+Corrigé-2.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Vocabulaire", title:"100 termes comptables", file:"100_termes.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Annales", title:"Annale Compta TSECO", file:"Annale Compta TSECO.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Bac", title:"BAC Comptabilité", file:"BAC COMPTA.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Comptabilité", title:"Compta TSECO", file:"Compta TSECO.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Facture", title:"Facture + corrigé", file:"FACTURE + CORRIGE.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Acquisition", title:"L'acquisition", file:"l'acquisition.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"OIM", title:"OIM Compta TSECO", file:"OIM Compta TSECO.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"SYCEBNL", title:"SYCEBNL", file:"SYCEBNL.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Effets", title:"TSECO Effets de commerce", file:"TSECO Effets.pdf", premium:true },
+  { type:"corrige", group:"Comptabilité", theme:"Valorisation", title:"Valorisation + corrigé", file:"Valorisation+Corrigé-2.pdf", premium:true },
 
-  { type:"corrige", group:"Économie", theme:"Bac", title:"Économie BAC TS éco", file:"Doc/Corrigé économiques/Economie BACTS éco.pdf", premium:true },
-  { type:"corrige", group:"Économie", theme:"Méthode", title:"Phrase choc", file:"Doc/Corrigé économiques/Phrase choc-1-3.pdf", premium:true },
-  { type:"corrige", group:"Économie", theme:"Corrigés", title:"Économie + corrigés", file:"Doc/Corrigé économiques/ÉCONOMIE+CORRIGES.pdf", premium:true },
+  { type:"corrige", group:"Économie", theme:"Bac", title:"Économie BAC TS éco", file:"Économie BACTS éco.pdf", premium:true },
+  { type:"corrige", group:"Économie", theme:"Méthode", title:"Phrase choc", file:"Phrase choc-1-3.pdf", premium:true },
+  { type:"corrige", group:"Économie", theme:"Corrigés", title:"Économie + corrigés", file:"ÉCONOMIE+CORRIGES.pdf", premium:true },
 ];
 
 // ====== LOGIQUE ======
@@ -233,6 +235,11 @@ $("search").oninput = render;
 $("group").oninput = render;
 
 render();
+
+// ====== APPLICATION INSTALLABLE (PWA) ======
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
 </script>
 </body>
 </html>
